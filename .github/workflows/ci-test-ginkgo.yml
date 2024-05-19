@@ -128,3 +128,4 @@ jobs:
         if: ${{ always() }}
         with:
           files: ./KubeArmor/gover.coverprofile
+          token: ${{ secrets.CODECOV_TOKEN }}
