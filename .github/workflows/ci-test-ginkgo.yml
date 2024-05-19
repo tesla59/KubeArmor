@@ -119,7 +119,7 @@ jobs:
         run: |
           go install github.com/modocache/gover@latest
           gover
-          go tool cover -func=gover.coverprofile
+          go tool cover -func=.coverage-report.out
         working-directory: KubeArmor
         env:
           GOPATH: /home/runner/go
@@ -127,5 +127,5 @@ jobs:
       - uses: codecov/codecov-action@v3
         if: ${{ always() }}
         with:
-          files: ./KubeArmor/gover.coverprofile
+          files: ./KubeArmor/.coverage-report.out
           token: ${{ secrets.CODECOV_TOKEN }}
