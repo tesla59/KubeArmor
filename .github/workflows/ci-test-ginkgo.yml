@@ -117,12 +117,11 @@ jobs:
       - name: Measure code coverage
         if: ${{ always() }}
         run: |
-          go tool cover -func=tests/k8s_env/coverprofile.out
+          ls tests/k8s_env/*
         env:
           GOPATH: /home/runner/go
 
       - uses: codecov/codecov-action@v3
         if: ${{ always() }}
         with:
-          files: coverprofile.out
           token: ${{ secrets.CODECOV_TOKEN }}
