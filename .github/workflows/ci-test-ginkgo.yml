@@ -125,5 +125,5 @@ jobs:
       - uses: codecov/codecov-action@v3
         if: ${{ always() }}
         with:
-          files: ./test/k8s_env/coverprofile.out
+          files: ./tests/k8s_env/coverprofile.out
           token: ${{ secrets.CODECOV_TOKEN }}
