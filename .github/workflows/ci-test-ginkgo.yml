@@ -118,6 +118,7 @@ jobs:
         if: ${{ always() }}
         run: |
           ls tests/k8s_env/*
+          go tool cover -func=tests/k8s_env/coverprofile.out
         env:
           GOPATH: /home/runner/go
 
