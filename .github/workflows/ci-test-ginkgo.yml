@@ -117,7 +117,8 @@ jobs:
       - name: Measure code coverage
         if: ${{ always() }}
         run: |
-          ls tests/k8s_env/*
+          ls coverprofile.out
+          cat coverprofile.out
         env:
           GOPATH: /home/runner/go
 
