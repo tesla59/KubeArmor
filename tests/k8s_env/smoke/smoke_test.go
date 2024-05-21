@@ -55,7 +55,10 @@ var _ = Describe("Smoke", func() {
 
 	Describe("Unit tests for utils", func() {
 		It("Checks if the kubearmor daemonset is running", func() {
-			err := K8sDaemonSetCheck("kubearmor", "kubearmor", 5*time.Second)
+			label := map[string]string{
+				"kubearmor-app": "kubearmor",
+			}
+			err := K8sDaemonSetCheck("", "kubearmor", label, 5*time.Second)
 			Expect(err).To(BeNil())
 		})
 

@@ -176,15 +176,33 @@ func waitForCondition(timeout time.Duration, cf ConditionFunc) error {
 	}
 }
 
-func isDaemonSetReady(dsname string, ns string) ConditionFunc {
+func isDaemonSetReady(dsname, ns string, labels map[string]string) ConditionFunc {
 	return func() (bool, error) {
-		dsset, err := k8sClient.K8sClientset.AppsV1().DaemonSets(ns).List(context.Background(), metav1.ListOptions{})
+		var labelSelector, fieldSelector string
+
+		if len(labels) > 0 {
+			var labelSelectorSlice []string
+			for k, v := range labels {
+				labelSelectorSlice = append(labelSelectorSlice, k+"="+v)
+			}
+			labelSelector = strings.Join(labelSelectorSlice, ",")
+		}
+
+		if dsname != "" {
+			fieldSelector = "metadata.name=" + dsname
+		}
+
+		listOptions := metav1.ListOptions{
+			LabelSelector: labelSelector,
+			FieldSelector: fieldSelector,
+		}
+		dsset, err := k8sClient.K8sClientset.AppsV1().DaemonSets(ns).List(context.Background(), listOptions)
 		if err != nil {
 			log.Errorf("could not get daemonsets error:%s", err)
 			return false, err
 		}
 		for _, ds := range dsset.Items {
-			if dsname == ds.ObjectMeta.Name && ds.Status.NumberReady > 0 {
+			if ds.Status.NumberReady > 0 {
 				return true, nil
 			}
 		}
@@ -209,8 +227,8 @@ func isDeploymentReady(depname string, ns string) ConditionFunc {
 }
 
 // K8sDaemonSetCheck Check if the daemonset exists and is ready
-func K8sDaemonSetCheck(dsname string, ns string, timeout time.Duration) error {
-	return waitForCondition(timeout, isDaemonSetReady(dsname, ns))
+func K8sDaemonSetCheck(dsname string, ns string, label map[string]string, timeout time.Duration) error {
+	return waitForCondition(timeout, isDaemonSetReady(dsname, ns, label))
 }
 
 // K8sDeploymentCheck Check if the deployment exists and is ready
