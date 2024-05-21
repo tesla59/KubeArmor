@@ -53,12 +53,19 @@ var _ = Describe("Smoke", func() {
 		time.Sleep(5 * time.Second)
 	})
 
-	It("Checks if the wordpress-mysql deployment is up and running", func() {
-		err := K8sDeploymentCheck("wordpress", "wordpress-mysql", 5*time.Second)
-		Expect(err).To(BeNil())
+	Describe("Unit tests for utils", func() {
+		It("Checks if the kubearmor daemonset is running", func() {
+			err := K8sDaemonSetCheck("kubearmor", "kubearmor", 5*time.Second)
+			Expect(err).To(BeNil())
+		})
 
-		err = K8sDeploymentCheck("mysql", "wordpress-mysql", 5*time.Second)
-		Expect(err).To(BeNil())
+		It("Checks if the wordpress-mysql deployment is up and running", func() {
+			err := K8sDeploymentCheck("wordpress", "wordpress-mysql", 5*time.Second)
+			Expect(err).To(BeNil())
+
+			err = K8sDeploymentCheck("mysql", "wordpress-mysql", 5*time.Second)
+			Expect(err).To(BeNil())
+		})
 	})
 
 	Describe("Policy Apply", func() {
