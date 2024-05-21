@@ -53,6 +53,14 @@ var _ = Describe("Smoke", func() {
 		time.Sleep(5 * time.Second)
 	})
 
+	It("Checks if the wordpress-mysql deployment is up and running", func() {
+		err := K8sDeploymentCheck("wordpress", "wordpress-mysql", 5*time.Second)
+		Expect(err).To(BeNil())
+
+		err = K8sDeploymentCheck("mysql", "wordpress-mysql", 5*time.Second)
+		Expect(err).To(BeNil())
+	})
+
 	Describe("Policy Apply", func() {
 		It("can block execution of pkg mgmt tools such as apt, apt-get", func() {
 			// Apply policy
