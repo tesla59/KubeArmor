@@ -5,6 +5,7 @@ package smoke
 
 import (
 	"fmt"
+	"os/exec"
 	"time"
 
 	"github.com/kubearmor/KubeArmor/tests/util"
@@ -20,6 +21,10 @@ var _ = BeforeSuite(func() {
 
 	// delete all KSPs
 	err = DeleteAllKsp()
+	Expect(err).To(BeNil())
+
+	// delete all HSPs
+	err = DeleteAllHsp()
 	Expect(err).To(BeNil())
 })
 
@@ -49,6 +54,9 @@ var _ = Describe("Smoke", func() {
 		KarmorLogStop()
 		err := DeleteAllKsp()
 		Expect(err).To(BeNil())
+		err = DeleteAllHsp()
+		Expect(err).To(BeNil())
+
 		// wait for policy deletion
 		time.Sleep(5 * time.Second)
 	})
@@ -71,7 +79,7 @@ var _ = Describe("Smoke", func() {
 		})
 	})
 
-	Describe("Policy Apply", func() {
+	Describe("Apply KSP policy", func() {
 		It("can block execution of pkg mgmt tools such as apt, apt-get", func() {
 			// Apply policy
 			err := K8sApplyFile("res/ksp-wordpress-block-process.yaml")
@@ -306,6 +314,7 @@ var _ = Describe("Smoke", func() {
 			Expect(alerts[0].PolicyName).To(Equal("ksp-wordpress-block-mount-file"))
 			Expect(alerts[0].Severity).To(Equal("5"))
 		})
+
 		It("will allow use of tcp network protocol by curl and bash", func() {
 			err := util.AnnotateNS("wordpress-mysql", "kubearmor-network-posture", "audit")
 			Expect(err).To(BeNil())
@@ -349,4 +358,24 @@ var _ = Describe("Smoke", func() {
 		})
 	})
 
+	Describe("Apply HSP policy", func() {
+		It("can block execution of apt and apt-get on node level", func() {
+			// Apply policy
+			err := K8sApplyFile("res/hsp-wordpress-block-process.yaml")
+			Expect(err).To(BeNil())
+
+			// Start Kubearmor Logs
+			err = KarmorLogStart("policy", "wordpress-mysql", "Process", wp)
+			Expect(err).To(BeNil())
+
+			// wait for policy creation
+			time.Sleep(5 * time.Second)
+
+			cmd := exec.Command("bash", "-c", "apt")
+			sout, err := cmd.CombinedOutput()
+			Expect(err).NotTo(BeNil())
+			fmt.Printf("---START---\n%s---END---\n", string(sout))
+			Expect(string(sout)).To(MatchRegexp("apt.*Permission denied"))
+		})
+	})
 })

@@ -89,6 +89,11 @@ jobs:
           kubectl wait -n kubearmor --timeout=5m --for=jsonpath='{.status.phase}'=Running kubearmorconfigs/kubearmorconfig-test
           kubectl wait --timeout=7m --for=condition=ready pod -l kubearmor-app,kubearmor-app!=kubearmor-snitch,kubearmor-app!=kubearmor-controller -n kubearmor
           kubectl wait --timeout=1m --for=condition=ready pod -l kubearmor-app=kubearmor-controller -n kubearmor
+          kubectl patch $(kubectl get daemonset -l kubearmor-app=kubearmor -n kubearmor -o name) \
+            --type='json' -p='[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "-enableKubeArmorHostPolicy"}]' -n kubearmor
+          kubectl patch $(kubectl get daemonset -l kubearmor-app=kubearmor -n kubearmor -o name) \
+            --type='json' -p='[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "-hostVisibility=process,file,network,capabilities"}]' -n kubearmor
+          kubectl annotate node $(kubectl get nodes -o jsonpath='{.items[0].metadata.name}') "kubearmor-visibility=process,file,network,capabilities"
           kubectl get pods -A
 
       - name: Test KubeArmor using Ginkgo
