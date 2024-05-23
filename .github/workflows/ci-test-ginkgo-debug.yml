@@ -91,6 +91,7 @@ jobs:
           kubectl wait --timeout=1m --for=condition=ready pod -l kubearmor-app=kubearmor-controller -n kubearmor
           kubectl apply -f tests/k8s_env/smoke/res/hsp-wordpress-block-process.yaml
           kubectl get pods -A
+          kubectl get all -n kubearmor
           kubectl get nodes --show-labels -o wide
           kubectl patch daemonset kubearmor --type='json' -p='[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "-enableKubeArmorHostPolicy"}, {"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "-hostVisibility=process,file,network,capabilities"}]' -n kubearmor
           curl -sfL http://get.kubearmor.io/ | sudo sh -s -- -b /usr/local/bin
