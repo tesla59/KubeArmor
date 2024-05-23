@@ -93,7 +93,7 @@ jobs:
           kubectl get pods -A
           kubectl get all -n kubearmor
           kubectl get nodes --show-labels -o wide
-          kubectl patch daemonset kubearmor --type='json' -p='[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "-enableKubeArmorHostPolicy"}, {"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "-hostVisibility=process,file,network,capabilities"}]' -n kubearmor
+          kubectl patch $(kubectl get daemonset -l kubearmor-app=kubearmor -n kubearmor -o name) --type='json' -p='[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "-enableKubeArmorHostPolicy"}, {"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "-hostVisibility=process,file,network,capabilities"}]' -n kubearmor
           curl -sfL http://get.kubearmor.io/ | sudo sh -s -- -b /usr/local/bin
           kubectl annotate node $(kubectl get nodes -o jsonpath='{.items[0].metadata.name}') "kubearmor-visibility=process,file,network,capabilities"
           kubectl describe node $(kubectl get nodes -o jsonpath='{.items[0].metadata.name}') 
