@@ -19,6 +19,8 @@ spec:
       containers:
       - args:
         - -gRPC=32767
+        - -enableKubeArmorHostPolicy
+        - -hostVisibility=process,file,network,capabilities
         {{printf "- -tlsEnabled=%t" .Values.tls.enabled}}
         {{printf "- -tlsCertPath=%s" .Values.kubearmor.tls.tlsCertPath}}
         {{printf "- -tlsCertProvider=%s" .Values.kubearmor.tls.tlsCertProvider}}

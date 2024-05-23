@@ -2,7 +2,6 @@ apiVersion: security.kubearmor.com/v1
 kind: KubeArmorHostPolicy
 metadata:
   name: hsp-wordpress-block-process
-  namespace: wordpress-mysql
 spec:
   severity: 5
   nodeSelector:
