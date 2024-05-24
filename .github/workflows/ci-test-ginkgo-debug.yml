@@ -94,8 +94,7 @@ jobs:
           kubectl patch $(kubectl get daemonset -l kubearmor-app=kubearmor -n kubearmor -o name) --type='json' -p='[{"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "-enableKubeArmorHostPolicy"}, {"op": "add", "path": "/spec/template/spec/containers/0/args/-", "value": "-hostVisibility=process,file,network,capabilities"}]' -n kubearmor
           curl -sfL http://get.kubearmor.io/ | sudo sh -s -- -b /usr/local/bin
           kubectl annotate node $(kubectl get nodes -o jsonpath='{.items[0].metadata.name}') "kubearmor-visibility=process,file,network,capabilities"
-          kubectl wait --timeout=7m --for=condition=ready pod -l kubearmor-app=kubearmor -n kubearmor
-          sleep 60
+          kubectl wait --timeout=7m --for=jsonpath='{.status.phase}'=Running pod -l kubearmor-app=kubearmor -n kubearmor
           karmor probe
           sudo apt update && sudo apt install vim
 
