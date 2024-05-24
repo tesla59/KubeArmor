@@ -98,3 +98,6 @@ jobs:
           sleep 60
           karmor probe
           sudo apt update && sudo apt install vim
+
+      - name: test apt
+        run: sudo apt update
