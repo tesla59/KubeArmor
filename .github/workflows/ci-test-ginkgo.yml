@@ -5,7 +5,7 @@ on:
     branches: [main, tesla/tests]
     paths:
       - "KubeArmor/**"
-      - "tests/**"
+      - "tests/k8s_env/**"
       - "protobuf/**"
       - ".github/workflows/ci-test-ginkgo.yml"
       - "pkg/KubeArmorOperator/**"
@@ -14,7 +14,7 @@ on:
     branches: [main]
     paths:
       - "KubeArmor/**"
-      - "tests/**"
+      - "tests/k8s_env/**"
       - "protobuf/**"
       - ".github/workflows/ci-test-ginkgo.yml"
       - "pkg/KubeArmorOperator/**"

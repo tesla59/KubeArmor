@@ -2,17 +2,17 @@ name: ci-test-systemd
 
 on:
   push:
-    branches: [main]
+    branches: [main, tesla/tests]
     paths:
       - "KubeArmor/**"
-      - "tests/**"
+      - "tests/nonk8s_env/**"
       - "protobuf/**"
       - ".github/workflows/ci-test-systemd.yml"
   pull_request:
     branches: [main]
     paths:
       - "KubeArmor/**"
-      - "tests/**"
+      - "tests/nonk8s_env/**"
       - "protobuf/**"
       - ".github/workflows/ci-test-systemd.yml"
 
