@@ -95,6 +95,7 @@ jobs:
           curl -sfL http://get.kubearmor.io/ | sudo sh -s -- -b /usr/local/bin
           kubectl annotate node $(kubectl get nodes -o jsonpath='{.items[0].metadata.name}') "kubearmor-visibility=process,file,network,capabilities"
           kubectl wait --timeout=7m --for=jsonpath='{.status.phase}'=Running pod -l kubearmor-app=kubearmor -n kubearmor
+          sleep 60
           karmor probe
           sudo apt update && sudo apt install vim
 
