@@ -50,7 +50,7 @@ spec:
         securityContext:
          allowPrivilegeEscalation: true
          capabilities:
-          add: ["NET_RAW"]
+          add: ["NET_RAW", "AUDIT_WRITE"]
         ports:
         - name: wordpress
           containerPort: 80
