@@ -140,6 +140,43 @@ var _ = Describe("Smoke", func() {
 			Expect(alerts[0].Severity).To(Equal("3"))
 		})
 
+		It("can block execution of binaries inside user directories", func() {
+			// Apply policy
+			err := K8sApplyFile("res/ksp-wordpress-block-process-user-directory.yaml")
+			Expect(err).To(BeNil())
+
+			// Start Kubearmor Logs
+			err = KarmorLogStart("policy", "wordpress-mysql", "Process", wp)
+			Expect(err).To(BeNil())
+
+			// Create a new user kubearmor-dev
+			_, _, err = K8sExecInPod(wp, "wordpress-mysql", []string{"useradd", "-m", "kubearmor-dev"})
+
+			// wait for policy creation
+			time.Sleep(5 * time.Second)
+
+			// Execution in root directory
+			sout, _, err := K8sExecInPod(wp, "wordpress-mysql", []string{"/bin/bash", "-c", "apt"})
+			Expect(err).To(BeNil())
+			fmt.Printf("---START---\n%s---END---\n", sout)
+			Expect(sout).NotTo(MatchRegexp("apt.*Permission denied"))
+
+			// Execution in user directory
+			_, _, err = K8sExecInPod(wp, "wordpress-mysql", []string{"cp", "/usr/bin/apt", "/home/kubearmor-dev/apt"})
+			Expect(err).To(BeNil())
+			sout, _, err = K8sExecInPod(wp, "wordpress-mysql", []string{"bash", "-c", "/home/kubearmor-dev/apt"})
+			Expect(err).To(BeNil())
+			fmt.Printf("---START---\n%s---END---\n", sout)
+			Expect(sout).To(MatchRegexp("apt.*Permission denied"))
+
+			// check policy violation alert
+			_, alerts, err := KarmorGetLogs(5*time.Second, 1)
+			Expect(err).To(BeNil())
+			Expect(len(alerts)).To(BeNumerically(">=", 1))
+			Expect(alerts[0].PolicyName).To(Equal("ksp-wordpress-block-process-user-directory"))
+			Expect(alerts[0].Severity).To(Equal("3"))
+		})
+
 		It("can block execution of access to sensitive file with abs path", func() {
 			// Apply policy
 			err := K8sApplyFile("res/ksp-wordpress-block-config.yaml")

@@ -1,0 +1,16 @@
+apiVersion: security.kubearmor.com/v1
+kind: KubeArmorPolicy
+metadata:
+  name: ksp-wordpress-block-process-user-directory
+  namespace: wordpress-mysql
+spec:
+  severity: 3
+  selector:
+    matchLabels:
+      app: wordpress
+  process:
+    matchDirectories:
+    - dir: /home/
+      recursive: true
+  action:
+    Block
