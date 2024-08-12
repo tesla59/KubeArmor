@@ -58,9 +58,11 @@ func GeneratePoliciesForContainers(containerIDs ...string) ([]KubeArmorPolicy, e
 		if err != nil {
 			return nil, err
 		}
+		// container.Name is in the format "/containerName"
+		containerName := strings.TrimPrefix(container.Names[0], "/")
 		policy := defaultPolicy
-		policy.Spec.Selector.MatchLabels["kubearmor.io/container.name"] = strings.TrimPrefix(container.Names[0], "/")
-		err = WritePolicyToFile(policy, PoliciesDirectory+"/policy_"+strings.TrimPrefix(container.Names[0], "/")+".yaml")
+		policy.Spec.Selector.MatchLabels["kubearmor.io/container.name"] = containerName
+		err = WritePolicyToFile(policy, PoliciesDirectory+"/policy_"+containerName+".yaml")
 		if err != nil {
 			return nil, err
 		}
