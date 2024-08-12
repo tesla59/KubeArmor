@@ -2,10 +2,13 @@ package main
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 
 	"gopkg.in/yaml.v3"
 )
+
+var PoliciesDirectory = "policies"
 
 type KubeArmorPolicy struct {
 	ApiVersion string `yaml:"apiVersion"`
@@ -57,7 +60,7 @@ func GeneratePoliciesForContainers(containerIDs ...string) ([]KubeArmorPolicy, e
 		}
 		policy := defaultPolicy
 		policy.Spec.Selector.MatchLabels["kubearmor.io/container.name"] = strings.TrimPrefix(container.Names[0], "/")
-		err = WritePolicyToFile(policy, "policy_"+strings.TrimPrefix(container.Names[0], "/")+".yaml")
+		err = WritePolicyToFile(policy, PoliciesDirectory+"/policy_"+strings.TrimPrefix(container.Names[0], "/")+".yaml")
 		if err != nil {
 			return nil, err
 		}
@@ -70,6 +73,17 @@ func GeneratePoliciesForContainers(containerIDs ...string) ([]KubeArmorPolicy, e
 func WritePolicyToFile(policy KubeArmorPolicy, filename string) error {
 	data, err := yaml.Marshal(policy)
 	if err != nil {
+		return err
+	}
+	directory := filepath.Dir(filename)
+
+	info, err := os.Stat(directory)
+	if os.IsNotExist(err) {
+		err = os.MkdirAll(directory, 0755)
+		if err != nil {
+			return err
+		}
+	} else if !info.IsDir() {
 		return err
 	}
 
