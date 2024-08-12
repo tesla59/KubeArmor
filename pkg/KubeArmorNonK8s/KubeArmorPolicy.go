@@ -57,8 +57,26 @@ func GeneratePoliciesForContainers(containerIDs ...string) ([]KubeArmorPolicy, e
 		}
 		policy := defaultPolicy
 		policy.Spec.Selector.MatchLabels["kubearmor.io/container.name"] = strings.TrimPrefix(container.Names[0], "/")
+		err = WritePolicyToFile(policy, "policy_"+strings.TrimPrefix(container.Names[0], "/")+".yaml")
+		if err != nil {
+			return nil, err
+		}
 		policies = append(policies, policy)
 	}
 
 	return policies, nil
+}
+
+func WritePolicyToFile(policy KubeArmorPolicy, filename string) error {
+	data, err := yaml.Marshal(policy)
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(filename, data, 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
