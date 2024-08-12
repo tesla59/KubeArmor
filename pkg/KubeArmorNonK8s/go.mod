@@ -2,7 +2,10 @@ module github.com/kubearmor/KubeArmor/pkg/KubeArmorNonK8s
 
 go 1.22.6
 
-require github.com/docker/docker v27.1.1+incompatible
+require (
+	github.com/docker/docker v27.1.1+incompatible
+	gopkg.in/yaml.v3 v3.0.1
+)
 
 require (
 	github.com/Microsoft/go-winio v0.4.14 // indirect
