@@ -9,7 +9,9 @@ import (
 	"syscall"
 )
 
+// ContainersToRun is a list of container images to run
 var ContainersToRun = []string{"nginx", "alpine"}
+// PoliciesDirectory is the directory where the generated policies are stored
 var PoliciesDirectory = "policies"
 
 func main() {

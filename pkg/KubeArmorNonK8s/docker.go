@@ -13,6 +13,7 @@ import (
 	"github.com/docker/docker/client"
 )
 
+// GetContainers returns a list of containers running on the host
 func GetContainers() ([]types.Container, error) {
 	context := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv)
@@ -26,6 +27,7 @@ func GetContainers() ([]types.Container, error) {
 	return containers, nil
 }
 
+// GetContainerByID returns the container with the specified container ID
 func GetContainerByID(ctx context.Context, containerID string) (types.Container, error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {

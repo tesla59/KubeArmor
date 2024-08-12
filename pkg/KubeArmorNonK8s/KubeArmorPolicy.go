@@ -32,6 +32,7 @@ type KubeArmorPolicy struct {
 	} `yaml:"spec"`
 }
 
+// ReadDefaultPolicy reads the default policy from the policy.yaml file and returns KubeArmorPolicy{} and error
 func ReadDefaultPolicy() (KubeArmorPolicy, error) {
 	data, err := os.ReadFile("policy.yaml")
 	if err != nil {
@@ -45,6 +46,7 @@ func ReadDefaultPolicy() (KubeArmorPolicy, error) {
 	return policy, err
 }
 
+// GeneratePoliciesForContainers generates policies for the specified container IDs. Uses the default policy as a template
 func GeneratePoliciesForContainers(ctx context.Context, containerIDs ...string) ([]KubeArmorPolicy, error) {
 	defaultPolicy, err := ReadDefaultPolicy()
 	if err != nil {
@@ -72,6 +74,7 @@ func GeneratePoliciesForContainers(ctx context.Context, containerIDs ...string) 
 	return policies, nil
 }
 
+// WritePolicyToFile writes the policy to the specified file. Called by GeneratePoliciesForContainers
 func WritePolicyToFile(policy KubeArmorPolicy, filename string) error {
 	data, err := yaml.Marshal(policy)
 	if err != nil {
@@ -97,6 +100,7 @@ func WritePolicyToFile(policy KubeArmorPolicy, filename string) error {
 	return nil
 }
 
+// ApplyPolicy applies the policy to the KubeArmor VM
 func ApplyPolicy(ctx context.Context, policy string) error {
 	info, err := os.Stat(policy)
 	if os.IsNotExist(err) {
@@ -110,6 +114,9 @@ func ApplyPolicy(ctx context.Context, policy string) error {
 	return karmor.Run()
 }
 
+// ApplyPolicies applies the policies in the specified directory to the KubeArmor VM
+// If the path is a directory, it applies all the policies in the directory
+// If the path is a file, it applies the policy in the file
 func ApplyPolicies(ctx context.Context, policyPath string) error {
 	info, err := os.Stat(policyPath)
 	if os.IsNotExist(err) {
