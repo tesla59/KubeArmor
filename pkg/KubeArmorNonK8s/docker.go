@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -38,12 +39,14 @@ func RunContainers(images ...string) ([]string, error) {
 		if err != nil {
 			return nil, err
 		}
+		slog.Info("Created container", "ID", createResponse.ID, "Name", image)
 
 		// Start the container
 		err = cli.ContainerStart(context, createResponse.ID, container.StartOptions{})
 		if err != nil {
 			return nil, err
 		}
+		slog.Info("Started container", "ID", createResponse.ID, "Name", image)
 		containerIDs = append(containerIDs, createResponse.ID)
 	}
 	return containerIDs, nil
@@ -61,6 +64,7 @@ func StopAndRemoveContainers(containerIDs ...string) error {
 		if err != nil {
 			return err
 		}
+		slog.Info("Stopped container", "ID", containerID)
 	}
 	return nil
 }

@@ -8,6 +8,8 @@ import (
 	"syscall"
 )
 
+var ContainersToRun = []string{"nginx"}
+
 func main() {
 	_, err := RunContainers("nginx")
 	if err != nil {
