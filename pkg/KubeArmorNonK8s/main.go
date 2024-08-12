@@ -10,6 +10,7 @@ import (
 )
 
 var ContainersToRun = []string{"nginx"}
+var PoliciesDirectory = "policies"
 
 func main() {
 	ctx := context.Background()
@@ -28,7 +29,7 @@ func main() {
 	fmt.Println("Policies generated", generatedPolicies)
 
 	// 3. Apply policies
-	err = ApplyPolicy(ctx, "policies/policy_nginx.yaml")
+	err = ApplyPolicies(ctx, PoliciesDirectory)
 	if err != nil {
 		slog.Info("Failed to apply policy", "error", err)
 	}

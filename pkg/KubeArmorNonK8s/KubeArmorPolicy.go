@@ -10,8 +10,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-var PoliciesDirectory = "policies"
-
 type KubeArmorPolicy struct {
 	ApiVersion string `yaml:"apiVersion"`
 	Kind       string `yaml:"kind"`
@@ -110,4 +108,38 @@ func ApplyPolicy(ctx context.Context, policy string) error {
 	karmor.Stdout = os.Stdout
 	karmor.Stderr = os.Stderr
 	return karmor.Run()
+}
+
+func ApplyPolicies(ctx context.Context, policyPath string) error {
+	info, err := os.Stat(policyPath)
+	if os.IsNotExist(err) {
+		return err
+	}
+	if info.IsDir() {
+		var policies []string
+		err := filepath.Walk(policyPath, func(path string, info os.FileInfo, err error) error {
+			if err != nil {
+				return err
+			}
+			if !info.IsDir() {
+				policies = append(policies, path)
+			}
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+		for _, policy := range policies {
+			err := ApplyPolicy(ctx, policy)
+			if err != nil {
+				return err
+			}
+		}
+	} else {
+		err := ApplyPolicy(ctx, policyPath)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
