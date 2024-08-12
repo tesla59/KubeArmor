@@ -23,13 +23,12 @@ func GetContainers() ([]types.Container, error) {
 	return containers, nil
 }
 
-func GetContainerByID(containerID string) (types.Container, error) {
-	context := context.Background()
+func GetContainerByID(ctx context.Context, containerID string) (types.Container, error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
 		return types.Container{}, err
 	}
-	containers, err := cli.ContainerList(context, container.ListOptions{
+	containers, err := cli.ContainerList(ctx, container.ListOptions{
 		Filters: filters.NewArgs(filters.KeyValuePair{Key: "id", Value: containerID}),
 	})
 	if err != nil {
@@ -40,16 +39,15 @@ func GetContainerByID(containerID string) (types.Container, error) {
 
 // RunContainers runs containers with the specified images
 // And returns the container IDs as a slice of strings
-func RunContainers(images ...string) ([]string, error) {
+func RunContainers(ctx context.Context, images ...string) ([]string, error) {
 	containerIDs := make([]string, 0)
-	context := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
 		return nil, err
 	}
 	for _, image := range images {
 		// Create a container
-		createResponse, err := cli.ContainerCreate(context, &container.Config{
+		createResponse, err := cli.ContainerCreate(ctx, &container.Config{
 			Image: image,
 		}, nil, nil, nil, image)
 		if err != nil {
@@ -58,7 +56,7 @@ func RunContainers(images ...string) ([]string, error) {
 		slog.Info("Created container", "ID", createResponse.ID, "Name", image)
 
 		// Start the container
-		err = cli.ContainerStart(context, createResponse.ID, container.StartOptions{})
+		err = cli.ContainerStart(ctx, createResponse.ID, container.StartOptions{})
 		if err != nil {
 			return nil, err
 		}
@@ -69,19 +67,18 @@ func RunContainers(images ...string) ([]string, error) {
 }
 
 // StopAndRemoveContainers stops and removes containers with the specified container IDs
-func StopAndRemoveContainers(containerIDs ...string) error {
-	context := context.Background()
+func StopAndRemoveContainers(ctx context.Context, containerIDs ...string) error {
 	cli, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
 		return err
 	}
 	for _, containerID := range containerIDs {
-		err = cli.ContainerStop(context, containerID, container.StopOptions{})
+		err = cli.ContainerStop(ctx, containerID, container.StopOptions{})
 		if err != nil {
 			return err
 		}
 		slog.Info("Stopped container", "ID", containerID)
-		err = cli.ContainerRemove(context, containerID, container.RemoveOptions{})
+		err = cli.ContainerRemove(ctx, containerID, container.RemoveOptions{})
 		if err != nil {
 			return err
 		}

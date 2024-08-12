@@ -45,7 +45,7 @@ func ReadDefaultPolicy() (KubeArmorPolicy, error) {
 	return policy, err
 }
 
-func GeneratePoliciesForContainers(containerIDs ...string) ([]KubeArmorPolicy, error) {
+func GeneratePoliciesForContainers(ctx context.Context, containerIDs ...string) ([]KubeArmorPolicy, error) {
 	defaultPolicy, err := ReadDefaultPolicy()
 	if err != nil {
 		return nil, err
@@ -54,7 +54,7 @@ func GeneratePoliciesForContainers(containerIDs ...string) ([]KubeArmorPolicy, e
 	policies := make([]KubeArmorPolicy, 0)
 
 	for _, container := range containerIDs {
-		container, err := GetContainerByID(container)
+		container, err := GetContainerByID(ctx, container)
 		if err != nil {
 			return nil, err
 		}

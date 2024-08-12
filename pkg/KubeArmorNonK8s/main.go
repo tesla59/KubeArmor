@@ -16,13 +16,13 @@ func main() {
 	ctx := context.Background()
 
 	// 1. Run containers
-	containerIDs, err := RunContainers(ContainersToRun...)
+	containerIDs, err := RunContainers(ctx, ContainersToRun...)
 	if err != nil {
 		slog.Error("Failed to run container", "error", err)
 	}
 
 	// 2. Generate policies
-	generatedPolicies, err := GeneratePoliciesForContainers(containerIDs...)
+	generatedPolicies, err := GeneratePoliciesForContainers(ctx, containerIDs...)
 	if err != nil {
 		slog.Error("Failed to generate policies", "error", err)
 	}
@@ -41,7 +41,7 @@ func main() {
 		signal.Notify(s, syscall.SIGTERM)
 		<-s
 		fmt.Println("Shutting down...")
-		err := StopAndRemoveContainers(containerIDs...)
+		err := StopAndRemoveContainers(ctx, containerIDs...)
 		if err != nil {
 			slog.Error("Failed to stop and remove containers", "error", err)
 		}
