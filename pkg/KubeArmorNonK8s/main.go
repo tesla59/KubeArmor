@@ -11,7 +11,7 @@ import (
 var ContainersToRun = []string{"nginx"}
 
 func main() {
-	_, err := RunContainers("nginx")
+	containerIDs, err := RunContainers("nginx")
 	if err != nil {
 		slog.Error("Failed to run container", "error", err)
 	}
@@ -23,6 +23,10 @@ func main() {
 		signal.Notify(s, syscall.SIGTERM)
 		<-s
 		fmt.Println("Shutting down...")
+		err := StopAndRemoveContainers(containerIDs...)
+		if err != nil {
+			slog.Error("Failed to stop and remove containers", "error", err)
+		}
 		os.Exit(0)
 	} ()
 	// Block forever
