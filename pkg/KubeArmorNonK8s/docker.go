@@ -48,3 +48,19 @@ func RunContainers(images ...string) ([]string, error) {
 	}
 	return containerIDs, nil
 }
+
+// StopAndRemoveContainers stops and removes containers with the specified container IDs
+func StopAndRemoveContainers(containerIDs ...string) error {
+	context := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv)
+	if err != nil {
+		return err
+	}
+	for _, containerID := range containerIDs {
+		err = cli.ContainerStop(context, containerID, container.StopOptions{})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
