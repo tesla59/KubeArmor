@@ -9,7 +9,7 @@ import (
 	"syscall"
 )
 
-var ContainersToRun = []string{"nginx"}
+var ContainersToRun = []string{"nginx", "alpine"}
 var PoliciesDirectory = "policies"
 
 func main() {

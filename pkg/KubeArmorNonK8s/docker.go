@@ -2,11 +2,14 @@ package main
 
 import (
 	"context"
+	"io"
 	"log/slog"
+	"os"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 )
 
@@ -45,22 +48,33 @@ func RunContainers(ctx context.Context, images ...string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	for _, image := range images {
-		// Create a container
-		createResponse, err := cli.ContainerCreate(ctx, &container.Config{
-			Image: image,
-		}, nil, nil, nil, image)
+	for _, img := range images {
+		// Pull the image
+		reader, err := cli.ImagePull(ctx, img, image.PullOptions{})
 		if err != nil {
 			return nil, err
 		}
-		slog.Info("Created container", "ID", createResponse.ID, "Name", image)
+		defer reader.Close()
+		_, err = io.Copy(os.Stdout, reader)
+		if err != nil {
+			return nil, err
+		}
+
+		// Create a container
+		createResponse, err := cli.ContainerCreate(ctx, &container.Config{
+			Image: img,
+		}, nil, nil, nil, img)
+		if err != nil {
+			return nil, err
+		}
+		slog.Info("Created container", "ID", createResponse.ID, "Name", img)
 
 		// Start the container
 		err = cli.ContainerStart(ctx, createResponse.ID, container.StartOptions{})
 		if err != nil {
 			return nil, err
 		}
-		slog.Info("Started container", "ID", createResponse.ID, "Name", image)
+		slog.Info("Started container", "ID", createResponse.ID, "Name", img)
 		containerIDs = append(containerIDs, createResponse.ID)
 	}
 	return containerIDs, nil
