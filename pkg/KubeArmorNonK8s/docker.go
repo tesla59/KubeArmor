@@ -21,11 +21,14 @@ func GetContainers() ([]types.Container, error) {
 	return containers, nil
 }
 
-func RunContainers(images ...string) error {
+// RunContainers runs containers with the specified images
+// And returns the container IDs as a slice of strings
+func RunContainers(images ...string) ([]string, error) {
+	containerIDs := make([]string, 0)
 	context := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	for _, image := range images {
 		// Create a container
@@ -33,14 +36,15 @@ func RunContainers(images ...string) error {
 			Image: image,
 		}, nil, nil, nil, image)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		// Start the container
 		err = cli.ContainerStart(context, createResponse.ID, container.StartOptions{})
 		if err != nil {
-			return err
+			return nil, err
 		}
+		containerIDs = append(containerIDs, createResponse.ID)
 	}
-	return nil
+	return containerIDs, nil
 }
