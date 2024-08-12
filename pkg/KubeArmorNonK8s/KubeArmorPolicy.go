@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -39,4 +40,25 @@ func ReadDefaultPolicy() (KubeArmorPolicy, error) {
 	err = yaml.Unmarshal(data, &policy)
 
 	return policy, err
+}
+
+func GeneratePoliciesForContainers(containerIDs ...string) ([]KubeArmorPolicy, error) {
+	defaultPolicy, err := ReadDefaultPolicy()
+	if err != nil {
+		return nil, err
+	}
+
+	policies := make([]KubeArmorPolicy, 0)
+
+	for _, container := range containerIDs {
+		container, err := GetContainerByID(container)
+		if err != nil {
+			return nil, err
+		}
+		policy := defaultPolicy
+		policy.Spec.Selector.MatchLabels["kubearmor.io/container.name"] = strings.TrimPrefix(container.Names[0], "/")
+		policies = append(policies, policy)
+	}
+
+	return policies, nil
 }

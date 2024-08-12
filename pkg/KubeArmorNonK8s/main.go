@@ -15,6 +15,11 @@ func main() {
 	if err != nil {
 		slog.Error("Failed to run container", "error", err)
 	}
+	Policies, err := GeneratePoliciesForContainers(containerIDs...)
+	if err != nil {
+		slog.Error("Failed to generate policies", "error", err)
+	}
+	fmt.Println("Policies generated", Policies)
 
 	// Graceful shutdown
 	go func ()  {
