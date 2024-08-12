@@ -37,3 +37,6 @@ vmlinux.h
 #ignore go.work
 go.work
 go.work.sum
+
+# temporary
+pkg/KubeArmorNonK8s/policies
