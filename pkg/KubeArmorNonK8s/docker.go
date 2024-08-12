@@ -6,6 +6,7 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
 )
 
@@ -20,6 +21,21 @@ func GetContainers() ([]types.Container, error) {
 		return nil, err
 	}
 	return containers, nil
+}
+
+func GetContainerByID(containerID string) (types.Container, error) {
+	context := context.Background()
+	cli, err := client.NewClientWithOpts(client.FromEnv)
+	if err != nil {
+		return types.Container{}, err
+	}
+	containers, err := cli.ContainerList(context, container.ListOptions{
+		Filters: filters.NewArgs(filters.KeyValuePair{Key: "id", Value: containerID}),
+	})
+	if err != nil {
+		return types.Container{}, err
+	}
+	return containers[0], nil
 }
 
 // RunContainers runs containers with the specified images
