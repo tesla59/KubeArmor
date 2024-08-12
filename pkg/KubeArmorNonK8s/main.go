@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"os"
@@ -11,6 +12,8 @@ import (
 var ContainersToRun = []string{"nginx"}
 
 func main() {
+	ctx := context.Background()
+
 	containerIDs, err := RunContainers("nginx")
 	if err != nil {
 		slog.Error("Failed to run container", "error", err)
@@ -20,6 +23,10 @@ func main() {
 		slog.Error("Failed to generate policies", "error", err)
 	}
 	fmt.Println("Policies generated", Policies)
+	err = ApplyPolicy(ctx, "policies/policy_nginx.yaml")
+	if err != nil {
+		slog.Info("Failed to apply policy", "error", err)
+	}
 
 	// Graceful shutdown
 	go func ()  {

@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -95,4 +97,17 @@ func WritePolicyToFile(policy KubeArmorPolicy, filename string) error {
 	}
 
 	return nil
+}
+
+func ApplyPolicy(ctx context.Context, policy string) error {
+	info, err := os.Stat(policy)
+	if os.IsNotExist(err) {
+		return err
+	} else if info.IsDir() {
+		return err
+	}
+	karmor := exec.CommandContext(ctx, "karmor", "vm", "policy", "add", policy)
+	karmor.Stdout = os.Stdout
+	karmor.Stderr = os.Stderr
+	return karmor.Run()
 }
