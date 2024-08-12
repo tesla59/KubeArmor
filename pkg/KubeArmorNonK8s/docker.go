@@ -81,6 +81,11 @@ func StopAndRemoveContainers(containerIDs ...string) error {
 			return err
 		}
 		slog.Info("Stopped container", "ID", containerID)
+		err = cli.ContainerRemove(context, containerID, container.RemoveOptions{})
+		if err != nil {
+			return err
+		}
+		slog.Info("Removed container", "ID", containerID)
 	}
 	return nil
 }
