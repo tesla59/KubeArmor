@@ -2,24 +2,23 @@ package main
 
 import (
 	"context"
-	"log/slog"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 )
 
-func GetContainers() []types.Container {
+func GetContainers() ([]types.Container, error) {
 	context := context.Background()
 	cli, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
-		slog.Error("Failed to initialize new Client")
+		return nil, err
 	}
 	containers, err := cli.ContainerList(context, container.ListOptions{})
 	if err != nil {
-		slog.Error("Failed to list containers")
+		return nil, err
 	}
-	return containers
+	return containers, nil
 }
 
 func RunContainers(images ...string) error {
