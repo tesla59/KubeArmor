@@ -4,11 +4,10 @@
 package feeder
 
 import (
-	"sync"
-	"testing"
-
 	cfg "github.com/kubearmor/KubeArmor/KubeArmor/config"
 	tp "github.com/kubearmor/KubeArmor/KubeArmor/types"
+	"sync"
+	"testing"
 )
 
 func TestFeeder(t *testing.T) {
@@ -36,4 +35,16 @@ func TestFeeder(t *testing.T) {
 		return
 	}
 	t.Log("[PASS] Destroyed logger")
+}
+
+func FuzzFeeder_PushLog(f *testing.F) {
+	node := tp.Node{}
+	nodeLock := new(sync.RWMutex)
+
+	logger := NewFeeder(&node, &nodeLock)
+
+	f.Fuzz(func(t *testing.T, data []byte) {
+		log := tp.Log{Message: string(data)}
+		logger.PushLog(log)
+	})
 }
