@@ -11,6 +11,8 @@ import (
 	"testing"
 )
 
+var systemMonitor *SystemMonitor
+
 func TestMain(m *testing.M) {
 	// containers
 	Containers := map[string]tp.Container{}
@@ -26,11 +28,6 @@ func TestMain(m *testing.M) {
 
 	node.KernelVersion = kl.GetCommandOutputWithoutErr("uname", []string{"-r"})
 	node.KernelVersion = strings.TrimSuffix(node.KernelVersion, "\n")
-
-	_ = Containers
-	_ = ContainersLock
-	_ = ActiveHostPidMap
-	_ = ActivePidMapLock
 
 	// load configuration
 	if err := cfg.LoadConfig(); err != nil {
@@ -54,7 +51,7 @@ func TestMain(m *testing.M) {
 	monitorLock := new(sync.RWMutex)
 
 	// Create System Monitor
-	systemMonitor := NewSystemMonitor(&node, &nodeLock, logger, &Containers, &ContainersLock, &ActiveHostPidMap, &ActivePidMapLock, &monitorLock)
+	systemMonitor = NewSystemMonitor(&node, &nodeLock, logger, &Containers, &ContainersLock, &ActiveHostPidMap, &ActivePidMapLock, &monitorLock)
 	if systemMonitor == nil {
 		fmt.Println("[FAIL] Failed to create SystemMonitor")
 
@@ -65,11 +62,17 @@ func TestMain(m *testing.M) {
 		return
 	}
 	fmt.Println("[PASS] Created SystemMonitor")
+	go systemMonitor.UpdateLogs()
 	m.Run()
 }
 
 func FuzzUpdateLogs(f *testing.F) {
 	f.Fuzz(func(t *testing.T, data []byte) {
-		_ = data
+		con := ContextCombined{
+			ContainerID: string(data),
+			ContextSys:  SyscallContext{},
+			ContextArgs: nil,
+		}
+		systemMonitor.ContextChan <- con
 	})
 }
