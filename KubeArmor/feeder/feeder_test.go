@@ -48,3 +48,10 @@ func FuzzFeeder_PushLog(f *testing.F) {
 		logger.PushLog(log)
 	})
 }
+
+func FuzzU(f *testing.F) {
+	f.Fuzz(func(t *testing.T, data []byte) {
+		s := string(data)
+		_ = s
+	})
+}
