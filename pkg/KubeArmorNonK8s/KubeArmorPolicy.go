@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/kubearmor/kubearmor-client/vm"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -114,6 +115,11 @@ func ApplyPolicy(ctx context.Context, policy string) error {
 	return karmor.Run()
 }
 
+// ApplyPolicyOverGRPC is used to apply policies to VMs using gRPC
+func ApplyPolicyOverGRPC(policyPath string) error {
+	return vm.PolicyHandling("ADDED", policyPath, vm.PolicyOptions{}, "", false)
+}
+
 // ApplyPolicies applies the policies in the specified directory to the KubeArmor VM
 // If the path is a directory, it applies all the policies in the directory
 // If the path is a file, it applies the policy in the file
@@ -137,13 +143,13 @@ func ApplyPolicies(ctx context.Context, policyPath string) error {
 			return err
 		}
 		for _, policy := range policies {
-			err := ApplyPolicy(ctx, policy)
+			err := ApplyPolicyOverGRPC(policy)
 			if err != nil {
 				return err
 			}
 		}
 	} else {
-		err := ApplyPolicy(ctx, policyPath)
+		err := ApplyPolicyOverGRPC(policyPath)
 		if err != nil {
 			return err
 		}

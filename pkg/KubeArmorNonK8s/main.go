@@ -11,6 +11,7 @@ import (
 
 // ContainersToRun is a list of container images to run
 var ContainersToRun = []string{"nginx", "alpine"}
+
 // PoliciesDirectory is the directory where the generated policies are stored
 var PoliciesDirectory = "policies"
 
@@ -37,7 +38,7 @@ func main() {
 	}
 
 	// 4. Handle shutdown
-	go func ()  {
+	go func() {
 		s := make(chan os.Signal, 1)
 		signal.Notify(s, os.Interrupt)
 		signal.Notify(s, syscall.SIGTERM)
@@ -48,7 +49,7 @@ func main() {
 			slog.Error("Failed to stop and remove containers", "error", err)
 		}
 		os.Exit(0)
-	} ()
+	}()
 	// Block forever
 	forever := make(chan bool)
 	<-forever
