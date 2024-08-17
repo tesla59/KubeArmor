@@ -3,6 +3,7 @@ kubearmor
 karmor
 snitch
 kubearmor-operator
+out
 
 # KubeArmor YAML Generator
 deploygen

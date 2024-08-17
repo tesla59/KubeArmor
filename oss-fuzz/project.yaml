@@ -1,0 +1,8 @@
+homepage: "https://github.com/tesla59/KubeArmor"
+primary_contact: "nishant@heim.id"
+language: go
+main_repo: "https://github.com/tesla59/KubeArmor"
+fuzzing_engines:
+  - libfuzzer
+sanitizers:
+  - address
