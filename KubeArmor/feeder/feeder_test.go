@@ -41,7 +41,19 @@ func FuzzFeeder_PushLog(f *testing.F) {
 	node := tp.Node{}
 	nodeLock := new(sync.RWMutex)
 
+	// load configuration
+	if err := cfg.LoadConfig(); err != nil {
+		f.Log("[FAIL] Failed to load configuration")
+		return
+	}
+
+	// create logger
 	logger := NewFeeder(&node, &nodeLock)
+	if logger == nil {
+		f.Log("[FAIL] Failed to create logger")
+		return
+	}
+	f.Log("[PASS] Created logger")
 
 	f.Fuzz(func(t *testing.T, data []byte) {
 		log := tp.Log{Message: string(data)}
