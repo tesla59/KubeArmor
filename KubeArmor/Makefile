@@ -6,7 +6,7 @@ CRDDIR          := $(realpath $(CURDIR)/../deployments/CRD)
 CONTRIBDIR      := $(realpath $(CURDIR)/../contribution)
 GO_EXEC         := $(shell which go)
 LOGNAME         := $(shell logname)
-NETNEXT         := 0
+NETNEXT         := 1
 DLV_EXEC         = $(GOPATH)/bin/dlv
 DLV_LPORT       := 2345
 DLV_RPORT       := $(shell expr $(DLV_LPORT) + $(NETNEXT))
@@ -32,7 +32,7 @@ ifneq (, $(shell which llvm-strip))
 	fi
 endif
 endif
-	cd $(CURDIR); CGO_ENABLED=0 go build -ldflags "$(GIT_INFO)" -o kubearmor main.go
+	cd $(CURDIR); CGO_ENABLED=0 go build -gcflags "all=-N -l" -ldflags "$(GIT_INFO)" -o kubearmor main.go
 
 .PHONY: protobuf
 protobuf:
@@ -56,7 +56,12 @@ run: build
 .PHONY: run-container
 run-container: build
 	cd $(CURDIR); sudo rm -f /tmp/kubearmor.log
-	cd $(CURDIR); sudo -E ./kubearmor -logPath=/tmp/kubearmor.log -enableKubeArmorHostPolicy -enableKubeArmorPolicy -k8s=false -criSocket=unix:///var/run/docker.sock
+	cd $(CURDIR); sudo /home/vagrant/go/bin/dlv exec ./kubearmor --headless --listen=:2345 --api-version=2 --accept-multiclient -- \
+	-logPath=/tmp/kubearmor.log \
+	-enableKubeArmorHostPolicy \
+	-enableKubeArmorPolicy \
+	-k8s=false \
+	-criSocket=unix:///var/run/docker.sock
 
 .PHONY: run-host-only
 run-host-only: build
